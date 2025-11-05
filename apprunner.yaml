@@ -1,0 +1,22 @@
+# apprunner.yaml
+version: 1.0
+runtime: nodejs22
+
+build:
+  commands:
+    pre-build:
+      - npm ci
+    build:
+      - npx prisma generate
+      - npm run build
+
+run:
+  # For Node.js 22 (revised build) you can run DB migrations before start:
+  pre-run:
+    - npx prisma migrate deploy
+  command: npm start
+  network:
+    port: 3000 # App Runner’s default is 8080; Next.js serves on 3000
+  env:
+    - name: NODE_ENV
+      value: production
