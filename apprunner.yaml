@@ -5,18 +5,22 @@ runtime: nodejs22
 build:
   commands:
     pre-build:
-      - npm ci
-    build:
+      # Ensure pnpm is available in the managed runtime
+      - corepack enable
+      - corepack prepare pnpm@9 --activate
+      - pnpm install --frozen-lockfile
       - npx prisma generate
-      - npm run build
+    build:
+      - pnpm build
 
 run:
-  # For Node.js 22 (revised build) you can run DB migrations before start:
   pre-run:
+    # Apply DB migrations on each deploy (safe for Prisma in prod)
     - npx prisma migrate deploy
-  command: npm start
+  command: pnpm start
   network:
-    port: 3000 # App Runner’s default is 8080; Next.js serves on 3000
+    # Next.js must listen on the same port App Runner probes
+    port: 3000
   env:
     - name: NODE_ENV
       value: production
