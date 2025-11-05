@@ -1,5 +1,5 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
 
 const prisma = new PrismaClient();
@@ -15,7 +15,7 @@ export async function GET() {
     return NextResponse.json(movies);
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     const body = await req.json();
     const parse = Payload.safeParse(body);
     if (!parse.success) return NextResponse.json(parse.error.format(), { status: 400 });
