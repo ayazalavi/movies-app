@@ -1,4 +1,5 @@
 import MovieCard from "@/components/MovieCard";
+import NoMovies from "@/components/NoMovies";
 
 async function getMovies() {
     // Replace with real fetch to your /api/movies
@@ -8,18 +9,11 @@ async function getMovies() {
     ];
 }
 
-export default async function MoviesPage() {
+export default async function MyMovies() {
     const movies = await getMovies();
 
-    if (!movies.length) {
-        return (
-            <div className="grid min-h-[60dvh] place-items-center">
-                <div className="card text-center">
-                    <p className="mb-4 text-lg text-slate-300">Your movie list is empty</p>
-                    <a href="/movies/new" className="btn-primary inline-block">Add a new movie</a>
-                </div>
-            </div>
-        );
+    if (movies.length) {
+        return <NoMovies />
     }
 
     return (

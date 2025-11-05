@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Montserrat } from "next/font/google";
 import Image from "next/image";
+import Footer from "@/components/Footer";
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -27,17 +28,8 @@ export default function RootLayout({
 
           <main className="flex-1 items-center justify-center flex">{children}</main>
 
-          {/* FOOTER IMAGE ONLY */}
-          <footer className="mt-auto w-full">
-            <Image
-              src="/bg.svg"
-              alt="decorative footer wave"
-              width={1440}          // set intrinsic width (svg doesn't care)
-              height={111}           // height scales automatically (preserves aspect ratio)
-              className="w-full h-auto"
-              priority
-            />
-          </footer>
+          <Footer />
+
         </div>
       </body>
     </html >
