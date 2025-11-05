@@ -6,8 +6,6 @@ build:
   env:
     - name: NODE_ENV
       value: production
-    - name: DATABASE_URL
-      value: postgresql://neondb_owner:npg_tziZ3ap6AHfm@ep-empty-mud-ad3v85mc-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
   commands:
     pre-build:
       # Ensure pnpm is available in the managed runtime
@@ -28,5 +26,3 @@ run:
   env:
     - name: NODE_ENV
       value: production
-    - name: DATABASE_URL
-      value: postgresql://neondb_owner:npg_tziZ3ap6AHfm@ep-empty-mud-ad3v85mc-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
