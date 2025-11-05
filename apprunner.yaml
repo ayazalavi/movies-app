@@ -21,6 +21,3 @@ run:
   network:
     # Next.js must listen on the same port App Runner probes
     port: 3000
-  env:
-    - name: NODE_ENV
-      value: production
