@@ -1,43 +1,94 @@
 @import "tailwindcss";
 
+/* Dark by default per your guide */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --background: #093545;
+  /* page background */
+  --foreground: #EDEDED;
+
+  /* Figma palette */
+  --color-primary: #2BD17E;
+  --color-error: #EB5757;
+  --color-input: #224957;
+  /* input bg */
+  --color-card: #092C39;
+  /* card bg */
 }
 
-@theme inline {
+
+
+/* Tailwind v4 theme tokens */
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-primary: var(--color-primary);
+  --color-error: var(--color-error);
+  --color-input: var(--color-input);
+  --color-card: var(--color-card);
+
+  /* Typography */
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  /* convenience Tailwind utilities */
+  @apply bg-background text-foreground antialiased;
 }
 
+/* ---------- Components layer ---------- */
+@layer components {
 
-.input {
-  @apply w-full rounded-lg bg-slate-800/60 text-white px-3 py-2 outline-none ring-1 ring-slate-700 focus:ring-emerald-400;
-}
+  /* Base button (DO NOT @apply .btn elsewhere) */
+  .btn {
+    @apply rounded-xl px-4 py-2 font-medium shadow;
+  }
 
-.btn-primary {
-  @apply rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-slate-900 hover:bg-emerald-400;
-}
+  .btn-primary {
+    /* repeat utilities instead of @apply btn */
+    @apply rounded-xl px-4 py-2 shadow bg-primary text-white hover:opacity-90 font-bold text-base;
+  }
 
-.btn-secondary {
-  @apply rounded-lg bg-slate-700 px-4 py-2 text-white hover:bg-slate-600;
-}
+  .btn-error {
+    @apply rounded-xl px-4 py-2 font-medium shadow bg-error text-white hover:opacity-90;
+  }
 
-body {
-  @apply bg-slate-950;
+  .card {
+    @apply rounded-2xl bg-card p-6 shadow-lg ring-1;
+    /* ring/border color via CSS var since it’s not a theme color */
+    border-color: color-mix(in oklab, white, transparent 85%);
+  }
+
+  .input {
+    @apply w-full rounded-xl bg-input px-4 py-2 focus:outline-none focus:ring-2 placeholder-white text-sm;
+    border: none;
+    height: 45px;
+  }
+
+  .label {
+    @apply text-sm text-slate-300;
+  }
+
+  .container-12 {
+    @apply mx-auto max-w-6xl px-6;
+  }
+
+  .gap-rhythm {
+    gap: 1.5rem;
+  }
+
+  .checkbox {
+    @apply appearance-none size-4 rounded-md border border-none bg-input checked:bg-primary checked:border-primary cursor-pointer;
+  }
 }

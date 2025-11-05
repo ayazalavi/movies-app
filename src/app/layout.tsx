@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import { Montserrat } from "next/font/google";
+import Image from "next/image";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,10 +21,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${montserrat.variable} antialiased `}
       >
-        {children}
+        <div className="flex min-h-dvh flex-col">
+
+          <main className="flex-1 items-center justify-center flex">{children}</main>
+
+          {/* FOOTER IMAGE ONLY */}
+          <footer className="mt-auto w-full">
+            <Image
+              src="/bg.svg"
+              alt="decorative footer wave"
+              width={1440}          // set intrinsic width (svg doesn't care)
+              height={111}           // height scales automatically (preserves aspect ratio)
+              className="w-full h-auto"
+              priority
+            />
+          </footer>
+        </div>
       </body>
-    </html>
+    </html >
   );
 }
