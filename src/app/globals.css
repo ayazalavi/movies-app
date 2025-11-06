@@ -60,20 +60,29 @@ body {
     @apply rounded-xl px-4 py-2 shadow bg-primary text-white hover:opacity-90 font-bold text-base h-[54px];
   }
 
+
+  .btn-cancel {
+    /* repeat utilities instead of @apply btn */
+    @apply rounded-xl px-4 py-2 shadow bg-transparent border border-1 text-white hover:opacity-90 font-bold text-base h-[56px];
+  }
+
   .btn-error {
     @apply rounded-xl px-4 py-2 font-medium shadow bg-error text-white hover:opacity-90;
   }
 
   .card {
-    @apply rounded-2xl bg-card p-6 shadow-lg ring-1;
+    @apply rounded-xl bg-card md:p-2 p-0 hover:opacity-70;
     /* ring/border color via CSS var since it’s not a theme color */
-    border-color: color-mix(in oklab, white, transparent 85%);
   }
 
   .input {
     @apply w-full rounded-xl bg-input px-4 py-2 focus:outline-none focus:ring-2 placeholder-white text-sm;
     border: none;
     height: 45px;
+  }
+
+  .input:focus {
+    @apply bg-white text-input border ring-input border-1 border-input
   }
 
   .label {

@@ -1,18 +1,33 @@
-import { PrismaClient } from "@/generated/prisma/client";
+// prisma/seed.ts
+import { PrismaClient } from "../src/generated/prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
-    const u = await prisma.user.upsert({
-        where: { email: "demo@example.com" },
-        update: {},
-        create: { email: "demo@example.com", password: "demo" }, // hash in real use
+    const email = "admin@movies-app.com";
+    const plainPassword = "Pass123"; // default seed password
+
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
+    const user = await prisma.user.upsert({
+        where: { email },
+        update: {}, // if exists, do nothing
+        create: {
+            email,
+            password: hashedPassword,
+        },
     });
-    await prisma.movie.createMany({
-        data: [
-            { title: "Movie 1", year: 2021, ownerId: u.id },
-            { title: "Movie 2", year: 2022, ownerId: u.id },
-        ],
-    });
+
+    console.log(`✅ Seeded user: ${user.email}`);
+    console.log(`🔑 Password: ${plainPassword}`);
 }
-main().finally(() => prisma.$disconnect());
+
+main()
+    .catch((e) => {
+        console.error("❌ Seed failed:", e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
