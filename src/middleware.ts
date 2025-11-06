@@ -7,6 +7,10 @@ const protectedRoutes = ["/my-movies"];
 export function middleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
 
+    const res = NextResponse.next();
+    res.headers.set("Cache-Control", "no-store");  // 🔥 critical
+
+
     const { pathname } = req.nextUrl;
 
     const isProtected = protectedRoutes.some((route) =>
