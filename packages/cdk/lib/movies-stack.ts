@@ -67,7 +67,7 @@ export class MoviesAppStack extends cdk.Stack {
             securityGroup: sg,
             role,
             keyPair,
-            instanceType: new ec2.InstanceType('t2.micro'),
+            instanceType: new ec2.InstanceType('t3.micro'),
             machineImage: ec2.MachineImage.latestAmazonLinux2023(),
         });
 
@@ -79,7 +79,7 @@ export class MoviesAppStack extends cdk.Stack {
 
             '# Install tools',
             'yum install -y git',
-            'curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash -',
+            'curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -',
             'yum install -y nodejs',
             'npm install -g pnpm pm2',
             'yum install -y nginx',
