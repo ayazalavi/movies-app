@@ -8,10 +8,10 @@ async function bootstrap() {
   app.use(json({ limit: '10mb' }));
   app.use(urlencoded({ limit: '10mb', extended: true }));
 
-  app.enableCors({
-    origin: ['https://dc965qcdra8d2.cloudfront.net', 'http://localhost:3000'],
-    credentials: true,
-  });
+  // app.enableCors({
+  //   origin: ['https://dc965qcdra8d2.cloudfront.net', 'http://localhost:3000'],
+  //   credentials: true,
+  // });
 
   await app.listen(process.env.PORT ?? 3000);
 }
