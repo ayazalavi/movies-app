@@ -20,9 +20,12 @@ export class MoviesAppStack extends cdk.Stack {
             'PostersBucket',
             'movie-app-uploads-ayaz',
         );
-        const webArtifactsBucket = new s3.Bucket(this, 'WebArtifactsBucket', {
-            bucketName: 'movie-app-builds-ayaz'
-        });
+
+        const webArtifactsBucket = s3.Bucket.fromBucketName(
+            this,
+            'WebArtifactsBucket',
+            'movie-app-builds-ayaz'
+        );
 
         const role = new iam.Role(this, 'MoviesInstanceRole', {
             assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
@@ -117,7 +120,7 @@ export class MoviesAppStack extends cdk.Stack {
             '# Start Next.js app on port 3000',
             'cd /srv/movies-app/apps/web',
             'pnpm install',
-            'aws s3 cp s3://movies-web-builds-ayaz/web-build-latest.tar.gz /tmp/web-build.tar.gz',
+            'aws s3 cp s3://movie-app-builds-ayaz/web-build-latest.tar.gz /tmp/web-build.tar.gz',
 
             'mkdir -p .next',
             'rm -rf .next/*',
