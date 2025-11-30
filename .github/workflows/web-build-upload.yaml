@@ -31,12 +31,11 @@ jobs:
       - name: Build monorepo
         run: pnpm build
 
-      - name: Create deployable tarball
+      - name: Create tarball
         run: |
           tar -czf $ARTIFACT_KEY_REPO \
             apps \
             packages \
-            node_modules \
             package.json \
             pnpm-lock.yaml \
             pnpm-workspace.yaml \
