@@ -69,6 +69,10 @@ export class MoviesAppStack extends cdk.Stack {
             keyPair,
             instanceType: new ec2.InstanceType('t3.micro'),
             machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+            blockDevices: [{
+                deviceName: '/dev/xvda',
+                volume: ec2.BlockDeviceVolume.ebs(30),
+            }],
         });
 
 
