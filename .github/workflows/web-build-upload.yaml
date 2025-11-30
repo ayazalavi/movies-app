@@ -2,8 +2,7 @@ name: Build Next.js and NestJS and upload to S3
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch: {}
 
 jobs:
@@ -17,42 +16,55 @@ jobs:
       ARTIFACT_KEY_API: api-build-latest.tar.gz
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Enable corepack (pnpm)
         run: corepack enable
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: "pnpm"
+          node-version: 22
+          cache: pnpm
 
-      - name: Install workspace deps
+      # Install workspace deps only ONCE
+      - name: Install workspace dependencies
         run: pnpm install
 
-      # ---------- API BUILD ----------
-      - name: Build NestJS API
+      ###################################
+      # API BUILD + PACKAGE NODE_MODULES
+      ###################################
+      - name: Install API deps
+        working-directory: apps/api
+        run: pnpm install --prod
+
+      - name: Build API
         working-directory: apps/api
         run: pnpm build
 
       - name: Package API build
         working-directory: apps/api
         run: |
-          tar -czf api-build.tar.gz dist package.json
+          tar -czf api-build.tar.gz dist node_modules package.json
 
-      # ---------- WEB BUILD ----------
-      - name: Build Next.js app
+      ###################################
+      # WEB BUILD + PACKAGE NODE_MODULES
+      ###################################
+      - name: Install WEB deps
+        working-directory: apps/web
+        run: pnpm install --prod
+
+      - name: Build Next.js
         working-directory: apps/web
         run: pnpm build
 
       - name: Package Next.js build
         working-directory: apps/web
         run: |
-          tar -czf web-build.tar.gz .next package.json
+          tar -czf web-build.tar.gz .next node_modules package.json
 
-      # ---------- UPLOAD ----------
+      ###################################
+      # UPLOAD ARTIFACTS
+      ###################################
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -60,12 +72,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Upload web build to S3
-        working-directory: apps/web
-        run: |
-          aws s3 cp web-build.tar.gz s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY_WEB
-
-      - name: Upload API build to S3
+      - name: Upload API build
         working-directory: apps/api
-        run: |
-          aws s3 cp api-build.tar.gz s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY_API
+        run: aws s3 cp api-build.tar.gz s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY_API
+
+      - name: Upload Web build
+        working-directory: apps/web
+        run: aws s3 cp web-build.tar.gz s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY_WEB
