@@ -12,7 +12,7 @@ jobs:
 
     env:
       AWS_REGION: us-east-1
-      ARTIFACT_BUCKET: movies-web-builds-ayaz
+      ARTIFACT_BUCKET: movie-app-builds-ayaz
       ARTIFACT_KEY: web-build-latest.tar.gz
 
     steps:
