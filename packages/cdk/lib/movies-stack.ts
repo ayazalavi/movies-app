@@ -20,12 +20,17 @@ export class MoviesAppStack extends cdk.Stack {
             'PostersBucket',
             'movie-app-uploads-ayaz',
         );
+        const webArtifactsBucket = new s3.Bucket(this, 'WebArtifactsBucket', {
+            bucketName: 'movie-app-builds-ayaz'
+        });
 
         const role = new iam.Role(this, 'MoviesInstanceRole', {
             assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
         });
 
+
         postersBucket.grantReadWrite(role);
+        webArtifactsBucket.grantReadWrite(role);
         role.addManagedPolicy(
             iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
         );
