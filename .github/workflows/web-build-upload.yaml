@@ -33,9 +33,6 @@ jobs:
       ###################################
       # API BUILD + PACKAGE NODE_MODULES
       ###################################
-      - name: Install API deps
-        working-directory: apps/api
-        run: pnpm install
 
       - name: Build API
         working-directory: apps/api
@@ -49,9 +46,6 @@ jobs:
       ###################################
       # WEB BUILD + PACKAGE NODE_MODULES
       ###################################
-      - name: Install WEB deps
-        working-directory: apps/web
-        run: pnpm install
 
       - name: Build Next.js
         working-directory: apps/web
