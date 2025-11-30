@@ -32,11 +32,14 @@ export class MoviesAppStack extends cdk.Stack {
         });
 
 
+
         postersBucket.grantReadWrite(role);
         webArtifactsBucket.grantReadWrite(role);
         role.addManagedPolicy(
             iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'),
         );
+
+
 
 
         const sg = new ec2.SecurityGroup(this, 'MoviesSecurityGroup', {
@@ -46,6 +49,14 @@ export class MoviesAppStack extends cdk.Stack {
         });
 
         sg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'HTTP');
+        sg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), 'SSH');
+
+        const keyPair = ec2.KeyPair.fromKeyPairName(
+            this,
+            'MoviesKeyPair',
+            'id_rsa',
+        );
+
 
         const instance = new ec2.Instance(this, 'MoviesInstance', {
             vpc,
@@ -55,6 +66,7 @@ export class MoviesAppStack extends cdk.Stack {
             associatePublicIpAddress: true,
             securityGroup: sg,
             role,
+            keyPair,
             instanceType: new ec2.InstanceType('t2.micro'),
             machineImage: ec2.MachineImage.latestAmazonLinux2023(),
         });
