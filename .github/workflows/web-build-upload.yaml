@@ -1,4 +1,4 @@
-name: Build Next.js and NestJS and upload to S3
+name: Build Movie App Monorepo and Upload to S3
 
 on:
   push:
@@ -12,8 +12,7 @@ jobs:
     env:
       AWS_REGION: us-east-1
       ARTIFACT_BUCKET: movie-app-builds-ayaz
-      ARTIFACT_KEY_WEB: web-build-latest.tar.gz
-      ARTIFACT_KEY_API: api-build-latest.tar.gz
+      ARTIFACT_KEY_REPO: movies-app-build-latest.tar.gz
 
     steps:
       - uses: actions/checkout@v4
@@ -26,39 +25,23 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      # Install workspace deps only ONCE
-      - name: Install workspace dependencies
+      - name: Install workspace deps
         run: pnpm install
 
-      ###################################
-      # API BUILD + PACKAGE NODE_MODULES
-      ###################################
-
-      - name: Build API
-        working-directory: apps/api
+      - name: Build monorepo
         run: pnpm build
 
-      - name: Package API build
-        working-directory: apps/api
+      - name: Create deployable tarball
         run: |
-          tar -czf api-build.tar.gz dist node_modules package.json
+          tar -czf $ARTIFACT_KEY_REPO \
+            apps \
+            packages \
+            node_modules \
+            package.json \
+            pnpm-lock.yaml \
+            pnpm-workspace.yaml \
+            tsconfig.base.json
 
-      ###################################
-      # WEB BUILD + PACKAGE NODE_MODULES
-      ###################################
-
-      - name: Build Next.js
-        working-directory: apps/web
-        run: pnpm build
-
-      - name: Package Next.js build
-        working-directory: apps/web
-        run: |
-          tar -czf web-build.tar.gz .next node_modules package.json
-
-      ###################################
-      # UPLOAD ARTIFACTS
-      ###################################
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -66,10 +49,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Upload API build
-        working-directory: apps/api
-        run: aws s3 cp api-build.tar.gz s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY_API
-
-      - name: Upload Web build
-        working-directory: apps/web
-        run: aws s3 cp web-build.tar.gz s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY_WEB
+      - name: Upload tarball to S3
+        run: |
+          aws s3 cp $ARTIFACT_KEY_REPO s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY_REPO
