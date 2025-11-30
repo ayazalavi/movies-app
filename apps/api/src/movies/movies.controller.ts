@@ -22,7 +22,10 @@ import {
     type UpdateMovieInput,
 } from '@moviesapp/shared/schemas/movie.schema';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { CreateMovieDto } from '@/common/dtos/movie.swagger.dto';
 
+@ApiBearerAuth('access_token')
 @Controller('movies')
 export class MoviesController {
     constructor(private readonly moviesService: MoviesService) { }
@@ -45,6 +48,23 @@ export class MoviesController {
 
     @Post()
     @UseInterceptors(FileInterceptor('poster'))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        description: 'Create a new movie',
+        type: CreateMovieDto,
+        schema: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                year: { type: 'number' },
+                poster: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+            required: ['title', 'year', 'poster'],
+        },
+    })
     async createMovie(
         @CurrentUser() user: { userId: string },
         @UploadedFile() poster: Express.Multer.File,
@@ -76,6 +96,23 @@ export class MoviesController {
 
     @Patch(':id')
     @UseInterceptors(FileInterceptor('poster'))
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        description: 'Update a movie',
+        type: CreateMovieDto,
+        schema: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                year: { type: 'number' },
+                poster: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+            required: ['title', 'year', "poster"],
+        },
+    })
     async updateMovie(
         @CurrentUser() user: { userId: string },
         @Param('id') id: string,

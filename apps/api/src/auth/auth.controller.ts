@@ -11,7 +11,10 @@ import {
 import { AuthService } from './auth.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import type { Response } from 'express';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from '@/common/dtos/login.swagger.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
@@ -19,6 +22,7 @@ export class AuthController {
     @Public()
     @HttpCode(HttpStatus.OK)
     @Post('login')
+    @ApiBody({ type: LoginDto })
     async signIn(@Body() signInDto: Record<string, any>, @Res({ passthrough: true }) res: Response,
     ) {
 
@@ -36,9 +40,9 @@ export class AuthController {
         return { ok: true, access_token: response.access_token };
     }
 
-    @Public()
     @HttpCode(HttpStatus.OK)
     @Get('logout')
+    @ApiBearerAuth('access_token')
     async logout(@Res({ passthrough: true }) res: Response,
     ) {
         res.clearCookie('token');
