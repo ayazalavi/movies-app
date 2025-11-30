@@ -1,0 +1,56 @@
+name: Build Next.js and upload to S3
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-1
+      ARTIFACT_BUCKET: movies-web-builds-ayaz
+      ARTIFACT_KEY: web-build-latest.tar.gz
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - name: Install root deps
+        run: pnpm install
+
+      - name: Build Next.js (apps/web)
+        working-directory: apps/web
+        run: |
+          pnpm install
+          pnpm build
+
+      - name: Package Next.js build
+        working-directory: apps/web
+        run: |
+          # We only need the .next build folder
+          tar -czf web-build.tar.gz .next
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload build to S3
+        working-directory: apps/web
+        run: |
+          aws s3 cp web-build.tar.gz s3://$ARTIFACT_BUCKET/$ARTIFACT_KEY
