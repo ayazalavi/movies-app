@@ -35,10 +35,8 @@ jobs:
         run: |
           tar -czf $ARTIFACT_KEY_REPO \
             apps \
-            packages \
-            node_modules \
-            package.json \
-            pnpm-lock.yaml \
+            packages \            
+            package.json \            
             pnpm-workspace.yaml \
             tsconfig.base.json
 
