@@ -64,6 +64,8 @@ export class MoviesAppStack extends cdk.Stack {
             'npm install -g pnpm pm2',
             'yum install -y nginx',
 
+            'yum install -y awscli',
+
             '# Enable nginx',
             'systemctl enable nginx',
             'systemctl start nginx',
@@ -99,18 +101,23 @@ export class MoviesAppStack extends cdk.Stack {
             'NEXT_PUBLIC_API_BASE=/api',
             'EOF',
 
-            '# Build all workspaces',
-            'pnpm build',
 
             '# --- PM2 APPS ---',
             '# Start NestJS API on port 8080 (adjust if your code uses another port)',
             'cd /srv/movies-app/apps/api',
+            'pnpm install',
+            'pnpm build',
             'pm2 start "PORT=8080 pnpm start:prod" --name movies-api --time || pm2 restart movies-api',
 
             '# Start Next.js app on port 3000',
             'cd /srv/movies-app/apps/web',
-            'pm2 start "pnpm start" --name movies-web --time || pm2 restart movies-web',
+            'pnpm install',
+            'aws s3 cp s3://movies-web-builds-ayaz/web-build-latest.tar.gz /tmp/web-build.tar.gz',
 
+            'mkdir -p .next',
+            'rm -rf .next/*',
+            'tar -xzf /tmp/web-build.tar.gz -C .',
+            'pm2 start "pnpm start" --name movies-web --time || pm2 restart movies-web',
             'pm2 save',
 
             '# --- NGINX CONFIG ---',
