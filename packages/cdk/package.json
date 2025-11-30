@@ -9,6 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "cdk:destroy": "AWS_PROFILE=movies-app pnpm cdk destroy",
     "cdk:deploy": "cdk deploy --profile movies-app",
     "cdk:synth": "cdk synth --profile movies-app"
   },
