@@ -25,12 +25,6 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      - name: Install workspace deps
-        run: pnpm install
-
-      - name: Build monorepo
-        run: pnpm build
-
       - name: Create tarball (with node_modules)
         run: |
           tar -czf $ARTIFACT_KEY_REPO \
