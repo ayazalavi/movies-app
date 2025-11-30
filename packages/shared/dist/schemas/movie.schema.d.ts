@@ -8,7 +8,6 @@ export type Movie = {
 export type MovieFormProps = {
     mode: "create" | "edit";
     initialData?: Movie;
-    onSubmit: (payload: FormData) => Promise<any>;
 };
 export declare const MovieBaseSchema: z.ZodObject<{
     title: z.ZodString;

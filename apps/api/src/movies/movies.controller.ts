@@ -35,6 +35,14 @@ export class MoviesController {
         return this.moviesService.findAllForUser(user.userId, page);
     }
 
+    @Get(":id")
+    getMovieById(
+        @CurrentUser() user: { userId: string },
+        @Param('id') id: string,
+    ) {
+        return this.moviesService.ensureOwned(user.userId, id);
+    }
+
     @Post()
     @UseInterceptors(FileInterceptor('poster'))
     async createMovie(

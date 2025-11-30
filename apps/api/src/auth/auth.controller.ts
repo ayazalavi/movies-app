@@ -33,9 +33,10 @@ export class AuthController {
             ...(remember ? { maxAge: 60 * 60 * 24 * 30 } : {}), // 30 days or session
         });
 
-        return { ok: true };
+        return { ok: true, access_token: response.access_token };
     }
 
+    @Public()
     @HttpCode(HttpStatus.OK)
     @Get('logout')
     async logout(@Res({ passthrough: true }) res: Response,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import {
@@ -37,7 +37,6 @@ export default function SignInPage() {
   }
 
   async function signinNow(data: any) {
-    console.log(data, API_BASE)
     const res = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       credentials: "include",
@@ -45,11 +44,16 @@ export default function SignInPage() {
       body: JSON.stringify(data),
     });
 
-    console.log(res)
-    if (!res.ok) {
+    const j = await res.json().catch(() => ({}));
+    if (!j.ok) {
       const j = await res.json().catch(() => ({}));
       throw new Error(j.error || "Sign in failed");
     }
+
+
+    if (typeof window !== "undefined")
+      localStorage.setItem("token", j.access_token)
+
   }
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -77,10 +81,7 @@ export default function SignInPage() {
     }
   }
 
-  // helper to compose input classes:
-  // - keep your `.input`
-  // - add green ring on focus
-  // - add red ring when error exists
+
   const inputCx = (hasError: boolean) =>
     `input ${hasError ? "ring-2 ring-error" : ""}`;
 

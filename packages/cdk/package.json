@@ -1,17 +1,28 @@
 {
-  "name": "@moviesapp/cdk",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "name": "cdk",
+  "version": "0.1.0",
+  "bin": {
+    "cdk": "bin/cdk.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "cdk:deploy": "cdk deploy --profile movies-app",
+    "cdk:synth": "cdk synth --profile movies-app"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^24.10.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "aws-cdk": "2.1033.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.9.3"
+  },
   "dependencies": {
-    "aws-cdk-lib": "2.155.0",
-    "constructs": "^10.0.0",
-    "@moviesapp/shared": "workspace:*"
+    "aws-cdk-lib": "2.215.0",
+    "constructs": "^10.0.0"
   }
 }

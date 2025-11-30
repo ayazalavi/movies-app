@@ -2,31 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
-import { z } from "zod";
+import { useRouter } from "next/navigation";
 import clsx from "clsx";
 
 import {
-    CreateMovieSchema,
-    UpdateMovieSchema,
-    CreateMovieInput,
     MovieFormProps,
-    MovieBaseSchema
+    MovieBaseSchema,
 } from "@moviesapp/shared/schemas/movie.schema";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE!;
 
-export default function MovieForm({
-    mode,
-    initialData,
-    onSubmit,
-}: MovieFormProps) {
+export default function MovieForm({ mode, initialData }: MovieFormProps) {
     const router = useRouter();
 
     const [title, setTitle] = useState(initialData?.title ?? "");
     const [year, setYear] = useState(initialData?.year?.toString() ?? "");
     const [posterPreview, setPosterPreview] = useState<string | undefined>(
-        initialData?.posterUrl ?? undefined
+        initialData?.posterUrl ?? undefined,
     );
     const [posterFile, setPosterFile] = useState<File | null>(null);
 
@@ -42,7 +34,9 @@ export default function MovieForm({
 
     useEffect(() => {
         return () => {
-            if (posterPreview?.startsWith("blob:")) URL.revokeObjectURL(posterPreview);
+            if (posterPreview?.startsWith("blob:")) {
+                URL.revokeObjectURL(posterPreview);
+            }
         };
     }, [posterPreview]);
 
@@ -61,7 +55,10 @@ export default function MovieForm({
         e.preventDefault();
         setErrors({});
 
-        const parsed = MovieBaseSchema.safeParse({ title: title.trim(), year: year.trim() });
+        const parsed = MovieBaseSchema.safeParse({
+            title: title.trim(),
+            year: year.trim(),
+        });
 
         const nextErrors: typeof errors = {};
         if (!parsed.success) {
@@ -71,9 +68,8 @@ export default function MovieForm({
             }
         }
 
-        // 2) Poster required: either a new file OR an existing posterUrl in edit mode
         const hasExistingPoster = Boolean(initialData?.posterUrl);
-        if (!posterFile && !hasExistingPoster) {
+        if (!posterFile && !hasExistingPoster && mode === "create") {
             nextErrors.poster = "Poster image is required";
         }
 
@@ -82,23 +78,75 @@ export default function MovieForm({
             return;
         }
 
-        // 3) Build FormData and submit
         const fd = new FormData();
         fd.set("title", title.trim());
         fd.set("year", year.trim());
         if (posterFile) fd.set("poster", posterFile);
-        if (initialData?.id) fd.set("id", initialData.id);
+
+        let url = `${API_BASE}/movies`;
+        let method: "POST" | "PATCH" = "POST";
+
+        if (mode === "edit") {
+            if (!initialData?.id) {
+                setErrors((prev) => ({
+                    ...prev,
+                    form: "Missing movie id for editing",
+                }));
+                return;
+            }
+            method = "PATCH";
+            url = `${API_BASE}/movies/${initialData.id}`;
+        }
 
         try {
             setSubmitting(true);
-            const res = await onSubmit(fd); // server action will redirect on success
-            if (res?.ok && res.redirectTo) router.replace(res.redirectTo);
 
+            const token =
+                typeof window !== "undefined"
+                    ? localStorage.getItem("token")
+                    : null;
+
+            if (!token) {
+                // No token → send to login
+                router.replace("/");
+                return;
+            }
+            const res = await fetch(url, {
+                method,
+                body: fd,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+
+            });
+
+            if (res.status === 401) {
+                if (typeof window !== "undefined") {
+                    localStorage.removeItem("token");
+                }
+                router.replace("/");
+                return;
+            }
+
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || "Request failed");
+            }
+
+            router.replace("/my-movies");
         } catch (err: any) {
-            setErrors((prev) => ({ ...prev, form: err?.message || "Unable to save movie" }));
+            setErrors((prev) => ({
+                ...prev,
+                form: err?.message || "Unable to save movie",
+            }));
         } finally {
             setSubmitting(false);
         }
+    }
+
+    function handleCancel(e: React.MouseEvent) {
+        e.preventDefault();
+        router.push("/");
     }
 
     return (
@@ -107,12 +155,11 @@ export default function MovieForm({
             className="grid grid-cols-1 md:gap-[127px] gap-6 md:grid-cols-[minmax(240px,320px)_1fr]"
             noValidate
         >
-            {/* Poster */}
             <div className="md:order-1 order-2">
                 <div
                     className={clsx(
                         "relative flex md:aspect-[4/5] aspect-[5/5] border border-dotted border-[2px] w-full cursor-pointer items-center justify-center rounded-[10px] bg-[var(--color-input)] ring-1 ring-white/10 hover:ring-white/20",
-                        errors.poster ? "ring-2 ring-error" : "ring-white/10"
+                        errors.poster ? "ring-2 ring-error" : "ring-white/10",
                     )}
                     onClick={() => fileRef.current?.click()}
                     aria-invalid={!!errors.poster}
@@ -147,7 +194,6 @@ export default function MovieForm({
                 )}
             </div>
 
-            {/* Fields */}
             <div className="grid content-start md:gap-6 gap-6 md:w-[362px] md:order-2 order-1">
                 <div>
                     <input
@@ -174,7 +220,10 @@ export default function MovieForm({
                         value={year}
                         onChange={(e) => setYear(e.target.value)}
                         placeholder="Publishing year"
-                        className={clsx("input md:w-[216px] w-full", errors.year && "ring-2 ring-error")}
+                        className={clsx(
+                            "input md:w-[216px] w-full",
+                            errors.year && "ring-2 ring-error",
+                        )}
                         aria-invalid={!!errors.year}
                         aria-describedby={errors.year ? "year-error" : undefined}
                     />
@@ -194,37 +243,37 @@ export default function MovieForm({
 
                 {/* Actions (equal width) */}
                 <div className="mt-10 grid grid-cols-2 gap-3 hidden md:grid">
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            redirect("/")
-                        }}
-                        className="btn-cancel w-full text-center"
-                    >
+                    <button onClick={handleCancel} className="btn-cancel w-full text-center">
                         Cancel
                     </button>
 
                     <button type="submit" disabled={submitting} className="btn-primary w-full">
-                        {submitting ? (mode === "edit" ? "Updating..." : "Submitting...") : mode === "edit" ? "Update" : "Submit"}
+                        {submitting
+                            ? mode === "edit"
+                                ? "Updating..."
+                                : "Submitting..."
+                            : mode === "edit"
+                                ? "Update"
+                                : "Submit"}
                     </button>
                 </div>
             </div>
 
             <div className="mt-4 grid grid-cols-2 order-3 gap-4 block md:hidden">
-                <button
-                    onClick={(e) => {
-                        e.preventDefault();
-                        redirect("/")
-                    }}
-                    className="btn-cancel w-full text-center"
-                >
+                <button onClick={handleCancel} className="btn-cancel w-full text-center">
                     Cancel
                 </button>
 
                 <button type="submit" disabled={submitting} className="btn-primary w-full">
-                    {submitting ? (mode === "edit" ? "Updating..." : "Submitting...") : mode === "edit" ? "Update" : "Submit"}
+                    {submitting
+                        ? mode === "edit"
+                            ? "Updating..."
+                            : "Submitting..."
+                        : mode === "edit"
+                            ? "Update"
+                            : "Submit"}
                 </button>
             </div>
         </form>
-    )
+    );
 }

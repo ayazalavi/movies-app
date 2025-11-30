@@ -11,7 +11,6 @@ export type Movie = {
 export type MovieFormProps = {
     mode: "create" | "edit";
     initialData?: Movie;
-    onSubmit: (payload: FormData) => Promise<any>; // server action passed from page
 };
 
 export const MovieBaseSchema = z.object({

@@ -84,7 +84,7 @@ export class MoviesService {
         });
     }
 
-    private async ensureOwned(ownerId: string, id: string) {
+    public async ensureOwned(ownerId: string, id: string) {
         const movie = await this.prisma.movie.findUnique({ where: { id } });
         if (!movie) throw new NotFoundException('Movie not found');
         if (movie.ownerId !== ownerId) throw new ForbiddenException();
