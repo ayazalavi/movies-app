@@ -27,10 +27,10 @@ jobs:
 
       - name: Create tarball (with node_modules)
         run: |
-          tar -czf $ARTIFACT_KEY_REPO \
+          tar -czf "$ARTIFACT_KEY_REPO" \
             apps \
-            packages \            
-            package.json \            
+            packages \
+            package.json \
             pnpm-workspace.yaml \
             tsconfig.base.json
 
