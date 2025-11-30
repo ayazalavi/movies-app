@@ -35,7 +35,7 @@ jobs:
       ###################################
       - name: Install API deps
         working-directory: apps/api
-        run: pnpm install --prod
+        run: pnpm install
 
       - name: Build API
         working-directory: apps/api
@@ -51,7 +51,7 @@ jobs:
       ###################################
       - name: Install WEB deps
         working-directory: apps/web
-        run: pnpm install --prod
+        run: pnpm install
 
       - name: Build Next.js
         working-directory: apps/web
