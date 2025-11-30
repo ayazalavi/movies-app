@@ -9,7 +9,7 @@ async function bootstrap() {
   app.use(urlencoded({ limit: '10mb', extended: true }));
 
   app.enableCors({
-    origin: '*',
+    origin: ['https://dc965qcdra8d2.cloudfront.net', 'http://localhost:3000'],
     credentials: true,
   });
 

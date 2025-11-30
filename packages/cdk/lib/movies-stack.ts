@@ -204,6 +204,10 @@ export class MoviesAppStack extends cdk.Stack {
             value: distribution.domainName,
         });
 
+        new cdk.CfnOutput(this, 'CloudFrontDistributionId', {
+            value: distribution.distributionId,
+        });
+
         new cdk.CfnOutput(this, 'PostersBucketName', {
             value: postersBucket.bucketName,
         });
