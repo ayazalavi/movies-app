@@ -17,22 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Enable corepack (pnpm)
-        run: corepack enable
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Create tarball (with node_modules)
+      - name: Create tarball
         run: |
           tar -czf "$ARTIFACT_KEY_REPO" \
-            apps \
-            packages \
-            package.json \
-            pnpm-workspace.yaml \
-            tsconfig.base.json
+          apps \
+          packages \
+          package.json \
+          pnpm-workspace.yaml \
+          tsconfig.base.json
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
