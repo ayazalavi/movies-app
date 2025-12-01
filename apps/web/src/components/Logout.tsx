@@ -6,10 +6,22 @@ import { useRouter } from "next/navigation";
 export function LogoutButton() {
     const router = useRouter();
     async function logoutAction() {
+        const token =
+            typeof window !== "undefined"
+                ? localStorage.getItem("token")
+                : null;
+
+        if (!token) {
+            router.replace("/");
+            return;
+        }
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/auth/logout`, {
             method: "GET",
             credentials: "include",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
         });
         console.log(await res.json())
         if (!res.ok) {
