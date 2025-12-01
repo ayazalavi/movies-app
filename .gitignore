@@ -3,6 +3,8 @@
 /node_modules
 /build
 
+deploy.sh
+
 pnpm-lock.yaml
 # Logs
 logs
