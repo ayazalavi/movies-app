@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle('Movies API')
     .setDescription('API documentation for Movies App')
     .setVersion('1.0')
+    .addServer("/api")
     .addBearerAuth(
       {
         type: 'http',
